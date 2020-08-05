@@ -1,0 +1,15 @@
+Package: rBigWig
+Title: R Interface to libBigWig
+Version: 0.1
+Authors@R: 
+    person(given = "Manuel",
+           family = "Landesfeind",
+           role = c("aut", "cre"),
+           email = "manuel.landesfeind@evotec.com")
+Description: Simple R-Interface to the libBigWig
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
+Imports: assertthat
+Suggests: testthat

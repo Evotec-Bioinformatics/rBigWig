@@ -1,0 +1,8 @@
+PKG_CFLAGS=
+PKG_CPPFLAGS=-IlibBigWig
+PKG_LIBS=-LlibBigWig -lBigWig -lcurl -lm -lz
+
+$(SHLIB): libBigWig/libBigWig.a
+
+libBigWig/libBigWig.a:
+	@(cd libBigWig && $(MAKE) libBigWig.a CC="$(CC)" CFLAGS="$(CFLAGS)")
