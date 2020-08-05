@@ -101,3 +101,66 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
   UNPROTECT(nprotect);
   return res;
 }
+
+
+SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
+  int nprotect = 0;
+  PROTECT(Rfilename); nprotect++;
+  char* pathname = CHAR(asChar(Rfilename));
+
+  PROTECT(Rchromosome); nprotect++;
+  char* chromosome = CHAR(asChar(Rchromosome));
+
+  int start = asInteger(Rstart);
+  int end = asInteger(Rend);
+  int bins = asInteger(Rbins);
+
+
+  bigWigFile_t *fp = NULL;
+  bwOverlappingIntervals_t *intervals = NULL;
+  double *stats = NULL;
+
+  //Initialize enough space to hold 128KiB (1<<17) of data at a time
+  if(bwInit(1<<17) != 0) {
+    fprintf(stderr, "Received an error in bwInit\n");
+    UNPROTECT(nprotect);
+    return R_NilValue;
+  }
+
+  //Open the local/remote file
+  fp = bwOpen(pathname, NULL, "r");
+  if(!fp) {
+    fprintf(stderr, "An error occured while opening %s\n", pathname);
+    UNPROTECT(nprotect);
+    return R_NilValue;
+  }
+
+  //Get values in a range (0-based, half open) without NAs
+  stats = bwStats(fp, chromosome, start, end, bins, mean);
+  if (stats == NULL) {
+    fprintf(stderr, "Failed to generate stats in bwStats\n");
+    UNPROTECT(nprotect);
+    return R_NilValue;
+  }
+
+  SEXP values = PROTECT(allocVector(REALSXP, bins)); nprotect++;
+  if (isNull(values)) {
+    fprintf(stderr, "Can not allocate %i-double vector to store the stats\n", bins);
+    UNPROTECT(nprotect);
+    return R_NilValue;
+  }
+  double* ptx_values = REAL(values);
+
+  void *ret = memcpy(ptx_values, stats, sizeof(double) * bins);
+  if (ret == NULL) {
+    fprintf(stderr, "Can not copy %i-double vector to output R-struct\n", bins);
+    UNPROTECT(nprotect);
+    return R_NilValue;
+  }
+
+  bwClose(fp);
+  bwCleanup();
+
+  UNPROTECT(nprotect);
+  return values;
+}
