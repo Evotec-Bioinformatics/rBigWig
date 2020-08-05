@@ -20,7 +20,7 @@ fetch_region <- function(path, chromosome, start, end) {
   assert_that(is.character(path), length(path) == 1)
   assert_that(file.exists(path))
   assert_that(is.character(chromosome), length(chromosome) == 1)
-  assert_that(is.numeric(start), start > 0)
+  assert_that(is.numeric(start), start >= 0)
   assert_that(is.numeric(end), end > start)
 
   d <- .Call(c_fetch_region,
@@ -58,7 +58,7 @@ fetch_region_means <- function(path, chromosome, start, end, bins = 1, as_data_f
   assert_that(is.character(path), length(path) == 1)
   assert_that(file.exists(path))
   assert_that(is.character(chromosome), length(chromosome) == 1)
-  assert_that(is.numeric(start), start > 0)
+  assert_that(is.numeric(start), start >= 0)
   assert_that(is.numeric(end), end > start)
 
   d <- .Call(c_fetch_region_means,
