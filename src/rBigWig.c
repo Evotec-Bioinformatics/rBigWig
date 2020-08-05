@@ -164,3 +164,4 @@ SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   UNPROTECT(nprotect);
   return values;
 }
+

@@ -5,11 +5,12 @@ NULL
 
 
 
-#' Helper function to count the number of links to a file (calls C)
+#' Fetch the score-values from a BigWig file in the provided region.
+#'
 #' @param path A non-empty character string pointing to an existing file
-#' @param chromsome
-#' @param start
-#' @param end
+#' @param chromsome The name of the chromosome to fetch from
+#' @param start An integer value defining the start position (0-based half-open)
+#' @param end An integer value defining the end position (0-based half-open). Must be larger than `start`
 #'
 #' @return A data.frame with either 2 or three columns containing either
 #'  `Position` and `Score` or `Start`, `End`, `Score` respectively.
@@ -40,17 +41,20 @@ fetch_region <- function(path, chromosome, start, end) {
   as.data.frame(d)
 }
 
-#' Helper function to count the number of links to a file (calls C)
-#' @param path A non-empty character string pointing to an existing file
-#' @param chromsome
-#' @param start
-#' @param end
+#' Calculate a `mean`-statistic on `bins` sub-intervals in the provided region.
 #'
-#' @return A data.frame with either 2 or three columns containing either
-#'  `Position` and `Score` or `Start`, `End`, `Score` respectively.
+#' @param path A non-empty character string pointing to an existing file
+#' @param chromsome The name of the chromosome to fetch from
+#' @param start An integer value defining the start position (0-based half-open)
+#' @param end An integer value defining the end position (0-based half-open). Must be larger than `start`.
+#' @param bins The number of sub-bins to generate.
+#' @param as_data_frame Return a data.frame with precalculated start and ends of the intervals.
+#'
+#' @return A numeric vector of length `bins` or a `data.frame` with `bins` rows and the columns
+#' `Start`, `End`, `Bin`, and `Score`.
 #'
 #' @export
-fetch_region_means <- function(path, chromosome, start, end, bins = 1) {
+fetch_region_means <- function(path, chromosome, start, end, bins = 1, as_data_frame = FALSE) {
   assert_that(is.character(path), length(path) == 1)
   assert_that(file.exists(path))
   assert_that(is.character(chromosome), length(chromosome) == 1)
@@ -66,8 +70,16 @@ fetch_region_means <- function(path, chromosome, start, end, bins = 1) {
   if (!is.vector(d) || !is.numeric(d) || length(d) != bins) {
     return(NULL)
   }
-  d
+
+
+  if (as_data_frame) {
+    bin_borders = seq.int(from = start, to = end, length.out = bins + 1)
+    data.frame(
+      Bin = 1:bins,
+      Start = bin_borders[ -length(bin_borders)],
+      End = bin_borders[ -1],
+      Score = d)
+  } else {
+    d
+  }
 }
-
-
-#x <- rBigWig::fetch_region("/data/projects/targetbcd/Alignments/SE2002_1_CSFP200001243-1a_HT7GYDSXX_L1_1_bwa/SE2002_1_CSFP200001243-1a_HT7GYDSXX_L1_1.bw", "21", 1000, 10000)
