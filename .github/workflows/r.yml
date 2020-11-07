@@ -13,10 +13,11 @@ jobs:
         run: sudo apt-get --yes update
 
       - name: Install system dependencies
-        run: sudo apt-get --yes install libcurl4-openssl-dev r-cran-devtools
+        run: sudo apt-get --yes install libcurl4-openssl-dev
 
-#      - name: Install R devtools
-#        run: sudo R -e 'install.packages("devtools")'
+      - uses: r-lib/actions/setup-r@v1
+        with:
+          r-version: '3.6.2'
 
       - name: Build
         run: devtools::build()
