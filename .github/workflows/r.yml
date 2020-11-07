@@ -2,24 +2,26 @@ name: R Build and Checks
 on: [push, pull_request]
 
 jobs:
-  build:
+  Build-Check-Install:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2.3.4
         with:
            submodules: 'recursive'
       
-      - uses: r-lib/actions/setup-r@v1
-
       - name: Install system dependencies
-        run: sudo apt-get --yes install libcurl4-openssl-dev
-        
-      - name: Install dependencies
         run: |
-          install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_deps(dependencies = TRUE)
+					sudo apt-get --yes install libcurl4-openssl-dev r-base r-cran-devtools
+
+      - name: Build
+        run: devtools::build()
         shell: Rscript {0}
 
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+      - name: Test
+        run: devtools::test()
         shell: Rscript {0}
+        
+      - name: Install
+        run: devtools::install()
+        shell: Rscript {0}
+
