@@ -10,8 +10,7 @@ jobs:
            submodules: 'recursive'
       
       - name: Install system dependencies
-        run: |
-					sudo apt-get --yes install libcurl4-openssl-dev r-base r-cran-devtools
+        run: sudo apt-get --yes install libcurl4-openssl-dev r-base r-cran-devtools
 
       - name: Build
         run: devtools::build()
