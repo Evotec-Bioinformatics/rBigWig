@@ -40,6 +40,9 @@ jobs:
 
       - uses: r-lib/actions/setup-pandoc@v1
 
+      - name: Checkout submodules
+        uses: textbook/git-checkout-submodule-action@2.1.1
+
       - name: Query dependencies
         run: |
           install.packages('remotes')
