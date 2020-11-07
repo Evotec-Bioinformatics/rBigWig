@@ -103,7 +103,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
 }
 
 
-SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
+SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, enum bwStatsType statsMode) {
   int nprotect = 0;
   PROTECT(Rfilename); nprotect++;
   char* pathname = CHAR(asChar(Rfilename));
@@ -114,7 +114,6 @@ SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   int start = asInteger(Rstart);
   int end = asInteger(Rend);
   int bins = asInteger(Rbins);
-
 
   bigWigFile_t *fp = NULL;
   bwOverlappingIntervals_t *intervals = NULL;
@@ -136,7 +135,7 @@ SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   }
 
   //Get values in a range (0-based, half open) without NAs
-  stats = bwStats(fp, chromosome, start, end, bins, mean);
+  stats = bwStats(fp, chromosome, start, end, bins, statsMode);
   if (stats == NULL) {
     fprintf(stderr, "Failed to generate stats in bwStats\n");
     UNPROTECT(nprotect);
@@ -163,5 +162,26 @@ SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
 
   UNPROTECT(nprotect);
   return values;
+}
+
+
+SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, mean);
+}
+
+SEXP c_fetch_region_stdev(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, stdev);
+}
+
+SEXP c_fetch_region_max(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, max);
+}
+
+SEXP c_fetch_region_cov(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, cov);
+}
+
+SEXP c_fetch_region_sum(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, sum);
 }
 
