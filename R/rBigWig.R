@@ -72,22 +72,14 @@ fetch_region_means <- function(path, chromosome, start, end, bins = 1, as_data_f
              chromosome[1],
              as.integer(start),
              as.integer(end),
-             as.integer(bins))
-  if (!is.vector(d) || !is.numeric(d) || length(d) != bins) {
+             as.integer(bins),
+						 as_data_frame)
+	if (as_data_frame && (!is.data.frame(d) || nrow(d) != bins)) {
+			return(NULL)
+	} else if (!as_data_frame && (!is.vector(d) || !is.numeric(d) || length(d) != bins)) {
     return(NULL)
   }
-
-
-  if (as_data_frame) {
-    bin_borders = seq.int(from = start, to = end, length.out = bins + 1)
-    data.frame(
-      Bin = 1:bins,
-      Start = bin_borders[ -length(bin_borders)],
-      End = bin_borders[ -1],
-      Score = d)
-  } else {
-    d
-  }
+  d
 }
 
 #' @describeIn fetch_region_stats Calculates the standard-deviation in the bins
@@ -104,20 +96,14 @@ fetch_region_stdevs <- function(path, chromosome, start, end, bins = 1, as_data_
              chromosome[1],
              as.integer(start),
              as.integer(end),
-             as.integer(bins))
-  if (!is.vector(d) || !is.numeric(d) || length(d) != bins) {
+             as.integer(bins),
+						 as_data_frame)
+	if (as_data_frame && (!is.data.frame(d) || nrow(d) != bins)) {
+			return(NULL)
+	} else if (!as_data_frame && (!is.vector(d) || !is.numeric(d) || length(d) != bins)) {
     return(NULL)
   }
-	if (as_data_frame) {
-    bin_borders = seq.int(from = start, to = end, length.out = bins + 1)
-    data.frame(
-      Bin = 1:bins,
-      Start = bin_borders[ -length(bin_borders)],
-      End = bin_borders[ -1],
-      Score = d)
-  } else {
-    d
-  }
+ 	d
 }
 
 #' @describeIn fetch_region_stats Return the maximum coverage value within each bin
@@ -134,20 +120,14 @@ fetch_region_max <- function(path, chromosome, start, end, bins = 1, as_data_fra
              chromosome[1],
              as.integer(start),
              as.integer(end),
-             as.integer(bins))
-  if (!is.vector(d) || !is.numeric(d) || length(d) != bins) {
+             as.integer(bins),
+						 as_data_frame)
+	if (as_data_frame && (!is.data.frame(d) || nrow(d) != bins)) {
+			return(NULL)
+	} else if (!as_data_frame && (!is.vector(d) || !is.numeric(d) || length(d) != bins)) {
     return(NULL)
   }
-	if (as_data_frame) {
-    bin_borders = seq.int(from = start, to = end, length.out = bins + 1)
-    data.frame(
-      Bin = 1:bins,
-      Start = bin_borders[ -length(bin_borders)],
-      End = bin_borders[ -1],
-      Score = d)
-  } else {
-    d
-  }
+  d
 }
 
 
@@ -166,20 +146,14 @@ fetch_region_min <- function(path, chromosome, start, end, bins = 1, as_data_fra
              chromosome[1],
              as.integer(start),
              as.integer(end),
-             as.integer(bins))
-  if (!is.vector(d) || !is.numeric(d) || length(d) != bins) {
+             as.integer(bins),
+						 as_data_frame)
+	if (as_data_frame && (!is.data.frame(d) || nrow(d) != bins)) {
+			return(NULL)
+	} else if (!as_data_frame && (!is.vector(d) || !is.numeric(d) || length(d) != bins)) {
     return(NULL)
   }
-	if (as_data_frame) {
-    bin_borders = seq.int(from = start, to = end, length.out = bins + 1)
-    data.frame(
-      Bin = 1:bins,
-      Start = bin_borders[ -length(bin_borders)],
-      End = bin_borders[ -1],
-      Score = d)
-  } else {
-    d
-  }
+  d
 }
 
 
@@ -197,20 +171,14 @@ fetch_region_covered <- function(path, chromosome, start, end, bins = 1, as_data
              chromosome[1],
              as.integer(start),
              as.integer(end),
-             as.integer(bins))
-  if (!is.vector(d) || !is.numeric(d) || length(d) != bins) {
+             as.integer(bins),
+						 as_data_frame)
+	if (as_data_frame && (!is.data.frame(d) || nrow(d) != bins)) {
+			return(NULL)
+	} else if (!as_data_frame && (!is.vector(d) || !is.numeric(d) || length(d) != bins)) {
     return(NULL)
   }
-	if (as_data_frame) {
-    bin_borders = seq.int(from = start, to = end, length.out = bins + 1)
-    data.frame(
-      Bin = 1:bins,
-      Start = bin_borders[ -length(bin_borders)],
-      End = bin_borders[ -1],
-      Score = d)
-  } else {
-    d
-  }
+  d
 }
 
 
@@ -228,19 +196,13 @@ fetch_region_sum <- function(path, chromosome, start, end, bins = 1, as_data_fra
              chromosome[1],
              as.integer(start),
              as.integer(end),
-             as.integer(bins))
-  if (!is.vector(d) || !is.numeric(d) || length(d) != bins) {
+             as.integer(bins),
+						 as_data_frame)
+	if (as_data_frame && (!is.data.frame(d) || nrow(d) != bins)) {
+			return(NULL)
+	} else if (!as_data_frame && (!is.vector(d) || !is.numeric(d) || length(d) != bins)) {
     return(NULL)
   }
-	if (as_data_frame) {
-    bin_borders = seq.int(from = start, to = end, length.out = bins + 1)
-    data.frame(
-      Bin = 1:bins,
-      Start = bin_borders[ -length(bin_borders)],
-      End = bin_borders[ -1],
-      Score = d)
-  } else {
-    d
-  }
+  d
 }
 

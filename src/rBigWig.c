@@ -11,10 +11,10 @@
 SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
   int nprotect = 0;
   PROTECT(Rfilename); nprotect++;
-  char* pathname = CHAR(asChar(Rfilename));
+  const char* pathname = CHAR(asChar(Rfilename));
 
   PROTECT(Rchromosome); nprotect++;
-  char* chromosome = CHAR(asChar(Rchromosome));
+  const char* chromosome = CHAR(asChar(Rchromosome));
 
   int start = asInteger(Rstart);
   int end = asInteger(Rend);
@@ -32,7 +32,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
   }
 
   //Open the local/remote file
-  fp = bwOpen(pathname, NULL, "r");
+  fp = bwOpen((char *)pathname, NULL, "r");
   if(!fp) {
     fprintf(stderr, "An error occured while opening %s\n", pathname);
     UNPROTECT(nprotect);
@@ -40,7 +40,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
   }
 
   //Get values in a range (0-based, half open) without NAs
-  intervals = bwGetValues(fp, chromosome, start, end, 0);
+  intervals = bwGetValues(fp, (char *)chromosome, start, end, 0);
   int n_intervals = intervals->l;
 
   SEXP starts = PROTECT(allocVector(INTSXP, n_intervals)); nprotect++;
@@ -103,17 +103,18 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
 }
 
 
-SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, enum bwStatsType statsMode) {
+SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, SEXP Rwant_data_frame, enum bwStatsType statsMode) {
   int nprotect = 0;
   PROTECT(Rfilename); nprotect++;
-  char* pathname = CHAR(asChar(Rfilename));
+  const char* pathname = CHAR(asChar(Rfilename));
 
   PROTECT(Rchromosome); nprotect++;
-  char* chromosome = CHAR(asChar(Rchromosome));
+  const char* chromosome = CHAR(asChar(Rchromosome));
 
   int start = asInteger(Rstart);
   int end = asInteger(Rend);
   int bins = asInteger(Rbins);
+  bool want_data_frame = asInteger(Rwant_data_frame) != 0;
 
   bigWigFile_t *fp = NULL;
   bwOverlappingIntervals_t *intervals = NULL;
@@ -127,7 +128,7 @@ SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   }
 
   //Open the local/remote file
-  fp = bwOpen(pathname, NULL, "r");
+  fp = bwOpen((char *)pathname, NULL, "r");
   if(!fp) {
     fprintf(stderr, "An error occured while opening %s\n", pathname);
     UNPROTECT(nprotect);
@@ -135,7 +136,7 @@ SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   }
 
   //Get values in a range (0-based, half open) without NAs
-  stats = bwStats(fp, chromosome, start, end, bins, statsMode);
+  stats = bwStats(fp, (char *)chromosome, start, end, bins, statsMode);
   if (stats == NULL) {
     fprintf(stderr, "Failed to generate stats in bwStats\n");
     UNPROTECT(nprotect);
@@ -160,28 +161,73 @@ SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   bwClose(fp);
   bwCleanup();
 
+	// Check if a data frame must be returned
+	if (!want_data_frame) {
+  	UNPROTECT(nprotect);
+		return values;
+	}
+
+	// Calculate the bin-size
+	int bin_size = (end - start) / bins;
+
+	// Calculate the bin-sizes/positions
+  SEXP df_start = PROTECT(allocVector(INTSXP, bins)); nprotect++;
+  SEXP df_end   = PROTECT(allocVector(INTSXP, bins)); nprotect++;
+	SEXP rownames = PROTECT(allocVector(INTSXP, bins)); nprotect++; // create a vector for the rownames; needed because rownames length defines the data.frame row number
+	int pos = start;
+	for (int i = 0, pos=start; i < bins; i++) {
+		INTEGER(df_start)[i] = pos;
+    pos = start + ((double)(end-start)*(i+1)) / bins;
+		INTEGER(df_end)[i] = pos;
+		INTEGER(rownames)[i] = i + 1;
+	}
+
+	// Generate a list and add the three elements
+	SEXP df = PROTECT(Rf_allocVector(VECSXP, 3)); nprotect++; // a list with three elements: start, end, value
+	SET_VECTOR_ELT(df, 0, df_start);
+	SET_VECTOR_ELT(df, 1, df_end);
+	SET_VECTOR_ELT(df, 2, values);
+
+	// Set class of list to data frame
+	SEXP cls = PROTECT(allocVector(STRSXP, 1)); nprotect++; // class attribute
+  SET_STRING_ELT(cls, 0, mkChar("data.frame"));
+  classgets(df, cls);
+
+	// Specify the column names
+	SEXP colnames = PROTECT(allocVector(STRSXP, 3)); nprotect++; // names attribute (column names)
+  SET_STRING_ELT(colnames, 0, mkChar("Start"));
+  SET_STRING_ELT(colnames, 1, mkChar("End"));
+  SET_STRING_ELT(colnames, 2, mkChar("Score"));
+
+	setAttrib(df, R_NamesSymbol, colnames);
+	setAttrib(df, R_RowNamesSymbol, rownames);
+
   UNPROTECT(nprotect);
-  return values;
+  return df;
 }
 
 
-SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
-  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, mean);
+SEXP c_fetch_region_means(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, SEXP Rwant_data_frame) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, Rwant_data_frame, mean);
 }
 
-SEXP c_fetch_region_stdev(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
-  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, stdev);
+SEXP c_fetch_region_stdev(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, SEXP Rwant_data_frame) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, Rwant_data_frame, stdev);
 }
 
-SEXP c_fetch_region_max(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
-  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, max);
+SEXP c_fetch_region_max(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, SEXP Rwant_data_frame) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, Rwant_data_frame, max);
 }
 
-SEXP c_fetch_region_cov(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
-  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, cov);
+SEXP c_fetch_region_min(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, SEXP Rwant_data_frame) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, Rwant_data_frame, min);
 }
 
-SEXP c_fetch_region_sum(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins) {
-  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, sum);
+SEXP c_fetch_region_cov(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, SEXP Rwant_data_frame) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, Rwant_data_frame, cov);
+}
+
+SEXP c_fetch_region_sum(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend, SEXP Rbins, SEXP Rwant_data_frame) {
+  return c_fetch_region_stats(Rfilename, Rchromosome, Rstart, Rend, Rbins, Rwant_data_frame, sum);
 }
 
