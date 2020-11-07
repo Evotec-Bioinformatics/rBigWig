@@ -19,6 +19,10 @@ jobs:
         with:
           r-version: '3.6.2'
 
+      - name: Install devtools
+        run: install.packages('devtools')
+        shell: Rscript {0}
+
       - name: Build
         run: devtools::build()
         shell: Rscript {0}
