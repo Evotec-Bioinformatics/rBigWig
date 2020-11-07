@@ -16,7 +16,7 @@ jobs:
         run: sudo apt-get --yes install libcurl4-openssl-dev
 
       - name: Install R devtools
-			  run: install.packages("devtools")
+        run: install.packages("devtools")
         shell: Rscript {0}
 
       - name: Build
