@@ -9,6 +9,9 @@ jobs:
         with:
            submodules: 'recursive'
       
+      - name: Update apt-get system
+        run: sudo apt-get --yes update
+
       - name: Install system dependencies
         run: sudo apt-get --yes install libcurl4-openssl-dev r-base r-cran-devtools
 
