@@ -1,5 +1,7 @@
+filename_bigwig <- system.file("data/test.bw", package = packageName())
+
 test_that("Retrieve single position", {
-  x <- rBigWig::fetch_region("testdata/test.bw", "1", 0, 1)
+  x <- rBigWig::fetch_region(filename_bigwig, "1", 0, 1)
   expect_is(x, "data.frame")
   expect_equal(ncol(x), 2)
   expect_true("Position" %in% colnames(x))
@@ -11,7 +13,7 @@ test_that("Retrieve single position", {
 
 
 test_that("Retrieve two positions", {
-  x <- rBigWig::fetch_region("testdata/test.bw", "1", 1, 3)
+  x <- rBigWig::fetch_region(filename_bigwig, "1", 1, 3)
   expect_is(x, "data.frame")
   expect_equal(ncol(x), 2)
   expect_true("Position" %in% colnames(x))
@@ -22,7 +24,7 @@ test_that("Retrieve two positions", {
 })
 
 test_that("Retrieve two positions at score-border", {
-  x <- rBigWig::fetch_region("testdata/test.bw", "1", 99, 101)
+  x <- rBigWig::fetch_region(filename_bigwig, "1", 99, 101)
   expect_is(x, "data.frame")
   expect_equal(ncol(x), 2)
   expect_true("Position" %in% colnames(x))
@@ -33,6 +35,6 @@ test_that("Retrieve two positions at score-border", {
 })
 
 test_that("Error if start == end", {
-  expect_error( rBigWig::fetch_region("testdata/test.bw", "1", 1, 1) )
+  expect_error( rBigWig::fetch_region(filename_bigwig, "1", 1, 1) )
 })
 
