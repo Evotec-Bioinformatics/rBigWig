@@ -6,6 +6,8 @@ Authors@R:
            family = "Landesfeind",
            role = c("aut", "cre"),
            email = "manuel.landesfeind@evotec.com")
+Author: Manuel Landesfeind [aut, cre], Evotec SE [cph]
+Maintainer: Manuel Landesfeind <manuel.landesfeind@evotec.com>
 Description: Simple R-Interface to the libBigWig
 License: MIT
 Encoding: UTF-8
