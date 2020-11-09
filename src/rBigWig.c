@@ -26,7 +26,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
 
   //Initialize enough space to hold 128KiB (1<<17) of data at a time
   if(bwInit(1<<17) != 0) {
-    fprintf(stderr, "Received an error in bwInit\n");
+    //fprintf(stderr, "Received an error in bwInit\n");
     UNPROTECT(nprotect);
     return R_NilValue;
   }
@@ -34,7 +34,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
   //Open the local/remote file
   fp = bwOpen((char *)pathname, NULL, "r");
   if(!fp) {
-    fprintf(stderr, "An error occured while opening %s\n", pathname);
+    //fprintf(stderr, "An error occured while opening %s\n", pathname);
     UNPROTECT(nprotect);
     return R_NilValue;
   }
@@ -45,7 +45,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
 
   SEXP starts = PROTECT(allocVector(INTSXP, n_intervals)); nprotect++;
   if (isNull(starts)) {
-    fprintf(stderr, "Can not allocate %i-int vector for starts\n", n_intervals);
+    //fprintf(stderr, "Can not allocate %i-int vector for starts\n", n_intervals);
     UNPROTECT(nprotect);
     return R_NilValue;
   }
@@ -53,7 +53,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
 
   SEXP values = PROTECT(allocVector(REALSXP, n_intervals)); nprotect++;
   if (isNull(values)) {
-    fprintf(stderr, "Can not allocate %i-double vector for values\n", n_intervals);
+    //fprintf(stderr, "Can not allocate %i-double vector for values\n", n_intervals);
     UNPROTECT(nprotect);
     return R_NilValue;
   }
@@ -65,7 +65,7 @@ SEXP c_fetch_region(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Rend) {
   if (has_ends) {
     ends = PROTECT(allocVector(INTSXP, n_intervals)); nprotect++;
     if (isNull(ends)) {
-      fprintf(stderr, "Can not allocate %i-int vector for ends\n", n_intervals);
+      //fprintf(stderr, "Can not allocate %i-int vector for ends\n", n_intervals);
       UNPROTECT(nprotect);
       return R_NilValue;
     }
@@ -122,7 +122,7 @@ SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
 
   //Initialize enough space to hold 128KiB (1<<17) of data at a time
   if(bwInit(1<<17) != 0) {
-    fprintf(stderr, "Received an error in bwInit\n");
+    //fprintf(stderr, "Received an error in bwInit\n");
     UNPROTECT(nprotect);
     return R_NilValue;
   }
@@ -130,7 +130,7 @@ SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   //Open the local/remote file
   fp = bwOpen((char *)pathname, NULL, "r");
   if(!fp) {
-    fprintf(stderr, "An error occured while opening %s\n", pathname);
+    //fprintf(stderr, "An error occured while opening %s\n", pathname);
     UNPROTECT(nprotect);
     return R_NilValue;
   }
@@ -138,14 +138,14 @@ SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
   //Get values in a range (0-based, half open) without NAs
   stats = bwStats(fp, (char *)chromosome, start, end, bins, statsMode);
   if (stats == NULL) {
-    fprintf(stderr, "Failed to generate stats in bwStats\n");
+    //fprintf(stderr, "Failed to generate stats in bwStats\n");
     UNPROTECT(nprotect);
     return R_NilValue;
   }
 
   SEXP values = PROTECT(allocVector(REALSXP, bins)); nprotect++;
   if (isNull(values)) {
-    fprintf(stderr, "Can not allocate %i-double vector to store the stats\n", bins);
+    //fprintf(stderr, "Can not allocate %i-double vector to store the stats\n", bins);
     UNPROTECT(nprotect);
     return R_NilValue;
   }
@@ -153,7 +153,7 @@ SEXP c_fetch_region_stats(SEXP Rfilename, SEXP Rchromosome, SEXP Rstart, SEXP Re
 
   void *ret = memcpy(ptx_values, stats, sizeof(double) * bins);
   if (ret == NULL) {
-    fprintf(stderr, "Can not copy %i-double vector to output R-struct\n", bins);
+    //fprintf(stderr, "Can not copy %i-double vector to output R-struct\n", bins);
     UNPROTECT(nprotect);
     return R_NilValue;
   }
