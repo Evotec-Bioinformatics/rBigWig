@@ -1,4 +1,4 @@
-filename_bigwig <- system.file("data/test.bw", package = packageName())
+filename_bigwig <- system.file("testdata/test.bw", package = packageName())
 
 test_that("Retrieve single position", {
   x <- rBigWig::fetch_region(filename_bigwig, "1", 0, 1)

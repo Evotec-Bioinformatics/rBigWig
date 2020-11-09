@@ -6,7 +6,7 @@ A R package for working with bigWig files using the [libBigWig C-library](https:
 
 ```R
 # The package functions always require the path to the file
-filename_bigwig <- system.file("data/test.bw", package="rBigWig")
+filename_bigwig <- system.file("testdata/test.bw", package="rBigWig")
 
 # Fetch the individual scores in the region
 rBigWig::fetch_region(filename_bigwig, chromosome="1", start=50, end=150)
