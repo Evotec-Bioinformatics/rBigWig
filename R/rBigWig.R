@@ -8,7 +8,7 @@ NULL
 #' Fetch the score-values from a BigWig file in the provided region.
 #'
 #' @param path A non-empty character string pointing to an existing file
-#' @param chromsome The name of the chromosome to fetch from
+#' @param chromosome The name of the chromosome to fetch from
 #' @param start An integer value defining the start position (0-based half-open)
 #' @param end An integer value defining the end position (0-based half-open). Must be larger than `start`
 #'
@@ -44,7 +44,7 @@ fetch_region <- function(path, chromosome, start, end) {
 
 
 #' Calculate statistics on `bins` sub-intervals in the provided region
-#' 
+#'
 #' @param path A non-empty character string pointing to an existing file
 #' @param chromosome The name of the chromosome to fetch from
 #' @param start An integer value defining the start position (0-based half-open)
